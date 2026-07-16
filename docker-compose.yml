@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: peladito-postgres
+    environment:
+      POSTGRES_USER: peladito
+      POSTGRES_PASSWORD: peladito
+      POSTGRES_DB: peladito
+    ports:
+      # 5435 para no chocar con un Postgres local en 5432
+      - '5435:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

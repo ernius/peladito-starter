@@ -1,0 +1,14 @@
+{
+  "name": "peladito-starter",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel --filter backend --filter frontend dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "migration:run": "pnpm --filter backend migration:run",
+    "migration:generate": "pnpm --filter backend migration:generate"
+  }
+}
