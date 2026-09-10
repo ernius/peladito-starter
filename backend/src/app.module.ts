@@ -9,6 +9,7 @@ import { databaseConfig } from './config/database.config';
 import { envValidationSchema } from './config/env.validation';
 import { HealthModule } from './health/health.module';
 import { UsersModule } from './users/users.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { UsersModule } from './users/users.module';
         synchronize: false,
       }),
     }),
+    ChatModule,
     HealthModule,
     UsersModule,
     AuthModule,

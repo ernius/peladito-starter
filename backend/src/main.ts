@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -6,6 +6,11 @@ import { AppModule } from './app.module';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
+  app.enableVersioning({
+    type: VersioningType.HEADER,
+    header: 'API-Version',
+    defaultVersion: '1',
+  });
   app.setGlobalPrefix('api');
   app.enableCors();
   app.useGlobalPipes(

@@ -10,5 +10,14 @@
     "db:down": "docker compose down",
     "migration:run": "pnpm --filter backend migration:run",
     "migration:generate": "pnpm --filter backend migration:generate"
+  },
+  "packageManager": "pnpm@12.3.4+sha512.961aa41fb077da3a04a441d9f8e15ebc0c96da8ef710b2eb67bf9ee7cb0610eabd48f1fd85f51cffe73846785fa0f87c56a3a872a1d893f8446741b5cce45457",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.124.0",
+    "async-retry": "^1.3.3",
+    "axios": "^1.20.0",
+    "axios-retry": "^4.5.0",
+    "openai": "^7.10.0",
+    "zod": "^4.5.4"
   }
 }
