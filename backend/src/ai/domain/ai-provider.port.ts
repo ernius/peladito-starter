@@ -63,14 +63,13 @@ export class AiAPIError extends AiError {
     message: string,
     headers: Headers,
     type?: APIErrorType,
-    requestID?: string,
   ) {
     super(`${AiAPIError.makeMessage(status, error, message)}`);
     this.status = status;
     this.headers = headers;
     this.error = error;
     this.type = type ?? undefined;
-    this.requestID = requestID ?? undefined;
+    this.requestID = headers?.get('request-id') ?? undefined;
   }
 
   private static makeMessage(status: number, error: any, message: string) {

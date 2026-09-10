@@ -30,7 +30,10 @@ import {
   AiProviderName,
   AiRateLimitError,
   AiUnprocessableEntityError,
+  AiCompletionRequest,
 } from '../ai/domain/ai-provider.port';
+
+import { explainDecisionPrompt } from '../ai/prompts/explain-decision';
 
 export class ChatRequestDto {
   @IsString()
@@ -52,10 +55,21 @@ export class ChatController {
 
   @Post()
   async chat(@Body() dto: ChatRequestDto): Promise<ArchitectResponse> {
+    // TODO: configurable
     const provider = this.aiProvider.get(AiProviderName.ANTHROPIC);
 
     try {
-      const resp = await provider.complete(dto);
+      // TODO: check intetion to decide strategy and prompt
+      const req: AiCompletionRequest = {
+        prompt: dto.prompt,
+        maxTokens: dto.maxTokens,
+        outputFormat: explainDecisionPrompt.outputFormat,
+        systemPrompt: explainDecisionPrompt.prompt,
+        systemPromptVersion: explainDecisionPrompt.version,
+      };
+
+      const resp = await provider.complete(req);
+
       const archResponse: ArchitectResponse = {
         intent: 'EXPLAIN_DECISION',
         status: ResponseStatus.ANSWERED,
@@ -67,6 +81,7 @@ export class ChatController {
       return archResponse;
     } catch (err) {
       // Never forward the AI provider's raw error body to the client.
+      console.log(err);
       if (
         err instanceof AiBadRequestError ||
         err instanceof AiUnprocessableEntityError

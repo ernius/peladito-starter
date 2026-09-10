@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Post,
   UseGuards,
+  VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './current-user.decorator';
@@ -16,7 +17,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import type { AuthenticatedUser } from './jwt.strategy';
 import { UserMapper } from './user.mapper';
 
-@Controller('auth')
+@Controller({ path: 'auth', version: VERSION_NEUTRAL })
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
