@@ -10,15 +10,17 @@ import {
   InternalServerErrorException,
   Logger,
   ServiceUnavailableException,
+  UseGuards,
 } from '@nestjs/common';
 import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
 
 import {
   DecisionStatus,
   Confidence,
+  RetrivalStrategy,
   type ArchitectResponse,
 } from '../ai/domain/architect-response.model';
-import { ResponseStatus } from 'src/ai/domain/evaluation-case.model';
+import { ResponseStatus } from '../ai/domain/evaluation-case.model';
 import { AiProviderRegistry } from '../ai/ai-provider.registry';
 import {
   AiAPIConnectionError,
@@ -32,6 +34,10 @@ import {
   AiUnprocessableEntityError,
   AiCompletionRequest,
 } from '../ai/domain/ai-provider.port';
+import { AiUsageLogService } from '../ai/ai-usage-log.service';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import type { AuthenticatedUser } from '../auth/jwt.strategy';
 
 import { explainDecisionPrompt } from '../ai/prompts/explain-decision';
 
@@ -51,17 +57,28 @@ export class ChatRequestDto {
 export class ChatController {
   private readonly logger = new Logger(ChatController.name);
 
-  constructor(private readonly aiProvider: AiProviderRegistry) {}
+  constructor(
+    private readonly aiProvider: AiProviderRegistry,
+    private readonly aiUsageLog: AiUsageLogService,
+  ) {}
 
   @Post()
-  async chat(@Body() dto: ChatRequestDto): Promise<ArchitectResponse> {
+  @UseGuards(JwtAuthGuard)
+  async chat(
+    @Body() dto: ChatRequestDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ): Promise<ArchitectResponse> {
     // TODO: configurable
-    const provider = this.aiProvider.get(AiProviderName.ANTHROPIC);
+    const providerName = AiProviderName.ANTHROPIC;
+    const provider = this.aiProvider.get(providerName);
+    const startedAt = Date.now();
 
     try {
-      // TODO: check intetion to decide strategy and prompt
+      // TODO: check intetion to decide strategy RetrivalStrategy and prompt
       const req: AiCompletionRequest = {
         prompt: dto.prompt,
+        model: dto.model,
+        // TODO: this comes from the prompt strategy
         maxTokens: dto.maxTokens,
         outputFormat: explainDecisionPrompt.outputFormat,
         systemPrompt: explainDecisionPrompt.prompt,
@@ -69,6 +86,18 @@ export class ChatController {
       };
 
       const resp = await provider.complete(req);
+
+      await this.aiUsageLog.recordChatUsage({
+        userId: user.userId,
+        providerName,
+        model: dto.model,
+        promptVersion: explainDecisionPrompt.version,
+        retrievalStrategy: RetrivalStrategy.NO_RETRIEVAL,
+        latencyMs: Date.now() - startedAt,
+        inputTokens: resp.usage?.input_tokens ?? 0,
+        outputTokens: resp.usage?.output_tokens ?? 0,
+        success: true,
+      });
 
       const archResponse: ArchitectResponse = {
         intent: 'EXPLAIN_DECISION',
@@ -80,13 +109,28 @@ export class ChatController {
       };
       return archResponse;
     } catch (err) {
+      await this.aiUsageLog.recordChatUsage({
+        userId: user.userId,
+        providerName,
+        model: dto.model,
+        promptVersion: explainDecisionPrompt.version,
+        retrievalStrategy: RetrivalStrategy.NO_RETRIEVAL,
+        latencyMs: Date.now() - startedAt,
+        inputTokens: 0,
+        outputTokens: 0,
+        success: false,
+      });
+
       // Never forward the AI provider's raw error body to the client.
       console.log(err);
       if (
         err instanceof AiBadRequestError ||
         err instanceof AiUnprocessableEntityError
       ) {
-        throw new BadRequestException('The AI provider rejected the request');
+        throw new BadRequestException(
+          'The AI provider rejected the request',
+          err.message,
+        );
       }
 
       if (

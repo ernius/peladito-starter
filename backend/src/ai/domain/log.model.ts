@@ -1,18 +1,10 @@
 import { AiProviderName } from './ai-provider.port';
-
-export const RetrivalStrategy = {
-  NO_RETRIEVAL: 'NO_RETRIEVAL',
-  FULL_CONTEXT: 'FULL_CONTEXT',
-  EXACT_LOOKUP: 'EXACT_LOOKUP',
-  MANAGED_FILE_SEARCH: 'MANAGED_FILE_SEARCH',
-  CUSTOM_RAG: 'CUSTOM_RAG',
-  HYBRID: 'HYBRID',
-} as const;
-
-export type RetrivalStrategy =
-  (typeof RetrivalStrategy)[keyof typeof RetrivalStrategy];
+import { RetrivalStrategy } from './architect-response.model';
 
 export interface AIUsageLog {
+  id: string;
+  createdAt: Date;
+
   userId: string;
   projectId: string;
 

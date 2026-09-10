@@ -12,7 +12,10 @@ export const clearToken = (): void => {
   localStorage.removeItem(TOKEN_KEY);
 };
 
-export const api = axios.create({ baseURL: '/api' });
+export const api = axios.create({
+  baseURL: '/api',
+  headers: { 'API-Version': '1' },
+});
 
 api.interceptors.request.use((config) => {
   const token = getToken();

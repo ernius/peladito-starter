@@ -8,7 +8,7 @@ import { useChat } from '../useChat';
 
 export const ChatPage = () => {
   const { data: user } = useCurrentUser();
-  const { messages, sendMessage } = useChat();
+  const { messages, sendMessage, error } = useChat();
   const [draft, setDraft] = useState('');
 
   const onSubmit = (event: React.FormEvent): void => {
@@ -58,6 +58,10 @@ export const ChatPage = () => {
           </div>
         )}
       </ScrollArea>
+
+      {error && (
+        <p className="border-t pt-3 text-sm text-destructive">{error}</p>
+      )}
 
       <form onSubmit={onSubmit} className="flex gap-2 border-t pt-3">
         <Input
