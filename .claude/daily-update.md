@@ -1,6 +1,5 @@
-Date: 2026-09-10
+Date: 2026-09-11
 Developer: ecopello
 
-- Added persistence for AI usage metrics (tokens, latency, cost, success/failure) recorded on every /ai/chat call
-- Protected /ai/chat with authentication so usage can be tied to the requesting user
-- Fixed a broken import path in the chat endpoint that was silently relying on baseUrl resolution
+- Extracted the AI provider call, error mapping, and usage-logging logic out of the chat endpoint into a new AiCompletionService in the ai module, so the controller only builds the request and formats the response
+- Fixed a bug where an AI provider call's result/error was silently dropped instead of being awaited, which meant every chat request would fail or could crash the server

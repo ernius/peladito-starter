@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AiCompletionService } from './ai-completion.service';
 import { AiProviderRegistry } from './ai-provider.registry';
 import { AiUsageLogService } from './ai-usage-log.service';
 import { AI_USAGE_LOG_REPOSITORY } from './domain/ai-usage-log-repository.port';
@@ -18,7 +19,8 @@ import { OpenAiProvider } from './infrastructure/openai.provider';
     AiProviderRegistry,
     { provide: AI_USAGE_LOG_REPOSITORY, useClass: AiUsageLogTypeormRepository },
     AiUsageLogService,
+    AiCompletionService,
   ],
-  exports: [AiProviderRegistry, AiUsageLogService],
+  exports: [AiProviderRegistry, AiUsageLogService, AiCompletionService],
 })
 export class AiModule {}

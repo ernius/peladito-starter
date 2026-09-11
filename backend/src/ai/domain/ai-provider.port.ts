@@ -27,7 +27,7 @@ export interface AiCompletionRequest {
 
 export interface AiCompletionResult {
   text?: string;
-  parsedOutput?: Object;
+  parsedOutput?: object;
   usage?: {
     input_tokens?: number;
     output_tokens?: number;
@@ -51,7 +51,7 @@ export class AiAPIError extends AiError {
   // HTTP status
   readonly status: number;
   readonly headers: Headers;
-  readonly error: Object;
+  readonly error: object;
   readonly type?: APIErrorType;
 
   // Ai session
@@ -59,7 +59,7 @@ export class AiAPIError extends AiError {
 
   constructor(
     status: number,
-    error: Object,
+    error: object,
     message: string,
     headers: Headers,
     type?: APIErrorType,
@@ -95,7 +95,7 @@ export class AiAPIError extends AiError {
 
   static generate(
     status: number,
-    errorResponse: Object,
+    errorResponse: object,
     message: string,
     headers: Headers,
   ): AiAPIError {
@@ -194,7 +194,7 @@ export function completeWithRetry(
   return retry(
     async (bail) => {
       try {
-        provider.complete(request);
+        return await provider.complete(request);
       } catch (err) {
         if (!provider.isRetryable(err)) {
           bail(err); // not retraible stop attempting
@@ -204,7 +204,8 @@ export function completeWithRetry(
       }
     },
     {
-      retries: 4,
+      // TODO: get from configuration
+      retries: 2,
       factor: 2, // Exponential backoff multiplier
       minTimeout: 1000, // First retry waits 1s
       maxTimeout: 8000, // Maximum wait capped at 8s
