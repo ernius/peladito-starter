@@ -18,6 +18,7 @@ export interface AiCompletionRequest {
   model?: string;
   maxTokens?: number;
   outputFormat?: ZodType;
+  temperature?: number;
   // prompt
   systemPrompt?: string;
   systemPromptVersion?: string;

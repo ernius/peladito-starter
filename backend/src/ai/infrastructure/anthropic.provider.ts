@@ -32,6 +32,7 @@ export class AnthropicProvider implements AiProvider {
           max_tokens: request.maxTokens ?? 100, // TODO: rethink default parametrs values, move to a config file
           messages: [{ role: 'user', content: request.prompt }],
           ...(request.systemPrompt && { system: request.systemPrompt }),
+          ...(request.temperature && { temperature: request.temperature }),
           output_config: { format: zodOutputFormat(request.outputFormat) },
         })
         .then((response) => {

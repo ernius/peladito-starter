@@ -5,6 +5,7 @@ export interface Prompt {
   model?: string;
   provider?: AiProviderName;
   outputFormat?: ZodType;
+  temperature?: number;
   version: string;
   prompt: string;
 }

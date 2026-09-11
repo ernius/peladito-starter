@@ -57,6 +57,7 @@ export class AiCompletionService {
       outputFormat: explainDecisionPrompt.outputFormat,
       systemPrompt: explainDecisionPrompt.prompt,
       systemPromptVersion: explainDecisionPrompt.version,
+      temperature: explainDecisionPrompt.temperature,
     };
 
     try {
