@@ -5,9 +5,9 @@ import { z } from 'zod';
 export function intentionExplanation(intention: ArchitectIntent): string {
   switch (intention) {
     case ArchitectIntent.EXPLAIN_DECISION:
-      return 'recover evidence and explain a project decision';
+      return 'recover evidence, that is document references and sections, and explain a project decision using just the information from provided documents';
     case ArchitectIntent.EXPLAIN_TECHNICAL_CONCEPT:
-      return 'explain in non technical terms a technical concept and relate with the project';
+      return 'explain in non technical terms a technical concept and relate with the project documents, only use information extracted from the documents';
     case ArchitectIntent.COMPARE_DOCUMENTED_ALTERNATIVES:
       return 'explain trade-offs between any project alternatives without making any decision';
     case ArchitectIntent.LOCATE_SOURCE:
@@ -26,12 +26,12 @@ export function intentionExplanation(intention: ArchitectIntent): string {
 
 const INTENTION_PROMPT_VERSION_V1 = '0.0.1';
 
-const INTENTION_PROMPT_SYSTEM_V1 =
-  'You are a software architect tasked to classify the intention of an architectural query related to the project. The possible intentions and their corresponding explanations are: ' +
+export const INTENTION_PROMPT_SYSTEM_V1 =
+  'You are a software architect tasked to classify the intention of an architectural query related to the project. The possible intentions names and their corresponding explanations are: ' +
   Object.values(ArchitectIntent)
-    .map((i) => i + ':' + intentionExplanation(i))
+    .map((i) => i + ': ' + intentionExplanation(i))
     .join(', ') +
-  '.';
+  '. You should just return one of the enumerated intentions names';
 
 export const INTENTIONS_SCHEMA = z.enum(Object.values(ArchitectIntent));
 
