@@ -34,7 +34,7 @@ export class OpenAiProvider implements AiProvider {
     if (request.outputFormat) {
       return this.clientOpenAI.responses
         .parse({
-          model: request.model ?? 'gpt-6-astra',
+          model: request.model ?? 'gpt-5.6-luna',
           ...(request.maxTokens && { max_output_tokens: request.maxTokens }),
           input: [
             ...(request.systemPrompt
@@ -71,7 +71,7 @@ export class OpenAiProvider implements AiProvider {
     }
     return this.clientOpenAI.responses
       .create({
-        model: request.model ?? 'gpt-6-astra',
+        model: request.model ?? 'gpt-5.6-luna',
         ...(request.maxTokens && { masx_output_tokens: request.maxTokens }),
         input: [
           ...(request.systemPrompt

@@ -27,7 +27,7 @@ export function intentionExplanation(intention: ArchitectIntent): string {
 const INTENTION_PROMPT_VERSION_V1 = '0.0.1';
 
 export const INTENTION_PROMPT_SYSTEM_V1 =
-  'You are a software architect tasked to classify the intention of an architectural query related to the project. The possible intentions names and their corresponding explanations are: ' +
+  'You are a software architect tasked to classify the intention or sentiment of an architectural query related to the project. The possible intentions names and their corresponding explanations are: ' +
   Object.values(ArchitectIntent)
     .map((i) => i + ': ' + intentionExplanation(i))
     .join(', ') +

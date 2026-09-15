@@ -1,3 +1,4 @@
+import { join } from 'path';
 import {
   BadGatewayException,
   BadRequestException,
@@ -33,6 +34,9 @@ export interface AiChatCompletionParams {
   userId: string;
 }
 
+// __dirname is backend/src/ai (or backend/dist/ai when built); repo root is 3 levels up.
+const REPO_ROOT = join(__dirname, '..', '..', '..');
+
 @Injectable()
 export class AiCompletionService {
   private readonly logger = new Logger(AiCompletionService.name);
@@ -58,6 +62,9 @@ export class AiCompletionService {
       systemPrompt: explainDecisionPrompt.prompt,
       systemPromptVersion: explainDecisionPrompt.version,
       temperature: explainDecisionPrompt.temperature,
+      documents: [
+        join(REPO_ROOT, 'deliverable-documents/week1/corpus/v0/product.md'),
+      ],
     };
 
     try {

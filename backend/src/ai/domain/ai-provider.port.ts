@@ -22,8 +22,8 @@ export interface AiCompletionRequest {
   // prompt
   systemPrompt?: string;
   systemPromptVersion?: string;
-  // files
-  documents?: [string];
+  // files paths
+  documents?: string[];
 }
 
 export interface AiCompletionResult {
