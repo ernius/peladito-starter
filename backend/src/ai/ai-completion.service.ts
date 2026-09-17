@@ -98,7 +98,7 @@ export class AiCompletionService {
         inputTokens: resp.usage?.input_tokens ?? 0,
         outputTokens: resp.usage?.output_tokens ?? 0,
         success: true,
-      } as RecordChatUsageParams);
+      });
 
       return {
         intent: (resp.parsedOutput as Intention).intent,
@@ -111,7 +111,7 @@ export class AiCompletionService {
         inputTokens: 0,
         outputTokens: 0,
         success: false,
-      } as RecordChatUsageParams);
+      });
 
       this.mapError(err);
     }
@@ -134,7 +134,7 @@ export class AiCompletionService {
     };
 
     // TODO: implement retrival strategies
-    let retrievalStrategy = RetrivalStrategy.NO_RETRIEVAL;
+    const retrievalStrategy = RetrivalStrategy.NO_RETRIEVAL;
     let tokenUsage: TokensUsage = { input_tokens: 0, output_tokens: 0 };
 
     try {

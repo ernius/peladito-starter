@@ -10,6 +10,7 @@ import { envValidationSchema } from './config/env.validation';
 import { HealthModule } from './health/health.module';
 import { UsersModule } from './users/users.module';
 import { ChatModule } from './chat/chat.module';
+import { DocumentModule } from './document/document.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ChatModule } from './chat/chat.module';
     UsersModule,
     AuthModule,
     AiModule,
+    DocumentModule,
   ],
 })
 export class AppModule {}
