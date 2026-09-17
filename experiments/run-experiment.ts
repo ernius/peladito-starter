@@ -80,6 +80,7 @@ async function main(): Promise<void> {
 
     console.log(`Result text: ${result.plainLanguageAnswer}`);
     console.log(`Expected status: ${experiment.expectedStatus}`);
+    console.log(`Sources: ${JSON.stringify(result.sources)}`);
     console.log(`Status: ${result.status}`);
     if (result.status == experiment.expectedStatus) {
       console.log("OK");

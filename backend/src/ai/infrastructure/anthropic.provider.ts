@@ -43,6 +43,7 @@ export class AnthropicProvider implements AiProvider {
         type: 'document',
         source: { type: 'file', file_id: uploadedFile.id },
         title: document.title,
+        context: `This is a${document.type} type document.`,
         citations: { enabled: true },
       });
     }
@@ -66,8 +67,8 @@ export class AnthropicProvider implements AiProvider {
       // TODO: outputFormat only present in some models ?
       if (request.outputFormat) {
         const response = await this.anthropicClient.messages.parse({
-          model: request.model ?? 'claude-opus-4-5',
-          max_tokens: request.maxTokens ?? 200, // TODO: rethink default parametrs values, move to a config file
+          model: request.model ?? 'claude-sonnet-5',
+          max_tokens: request.maxTokens ?? 2000, // TODO: rethink default parametrs values, move to a config file
           messages: [{ role: 'user', content }],
           ...(request.systemPrompt && { system: request.systemPrompt }),
           ...(request.temperature && { temperature: request.temperature }),
@@ -80,8 +81,8 @@ export class AnthropicProvider implements AiProvider {
       }
 
       const response = await this.anthropicClient.messages.create({
-        model: request.model ?? 'claude-opus-4-5',
-        max_tokens: request.maxTokens ?? 100, // TODO: rethink default parametrs values, move to a config file
+        model: request.model ?? 'claude-sonnet-5',
+        max_tokens: request.maxTokens ?? 2000, // TODO: rethink default parametrs values, move to a config file
         messages: [{ role: 'user', content }],
         ...(request.systemPrompt && { system: request.systemPrompt }),
       });
