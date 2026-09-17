@@ -1,5 +1,6 @@
 import retry from 'async-retry';
 import { ZodType } from 'zod/v4';
+import { ArchitectIntent } from './evaluation-case.model';
 
 export const AiProviderName = {
   OPENAI: 'OPENAI',
@@ -26,13 +27,16 @@ export interface AiCompletionRequest {
   documents?: string[];
 }
 
+export interface TokensUsage {
+  input_tokens?: number;
+  output_tokens?: number;
+}
+
 export interface AiCompletionResult {
   text?: string;
+  citations?: string[];
   parsedOutput?: object;
-  usage?: {
-    input_tokens?: number;
-    output_tokens?: number;
-  };
+  usage?: TokensUsage;
 }
 
 export type APIErrorType =

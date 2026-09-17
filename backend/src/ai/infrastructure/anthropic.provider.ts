@@ -6,7 +6,7 @@ import {
   type AiProvider,
   AiAPIError,
 } from '../domain/ai-provider.port';
-
+import path from 'node:path';
 import { Anthropic } from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import fs from 'fs';
@@ -34,6 +34,8 @@ export class AnthropicProvider implements AiProvider {
       documentBlocks.push({
         type: 'document',
         source: { type: 'file', file_id: uploadedFile.id },
+        title: path.basename(documentPath),
+        citations: { enabled: true },
       });
     }
     return documentBlocks;
@@ -50,7 +52,7 @@ export class AnthropicProvider implements AiProvider {
       if (request.outputFormat) {
         const response = await this.anthropicClient.messages.parse({
           model: request.model ?? 'claude-opus-4-5',
-          max_tokens: request.maxTokens ?? 100, // TODO: rethink default parametrs values, move to a config file
+          max_tokens: request.maxTokens ?? 200, // TODO: rethink default parametrs values, move to a config file
           messages: [{ role: 'user', content }],
           ...(request.systemPrompt && { system: request.systemPrompt }),
           ...(request.temperature && { temperature: request.temperature }),
@@ -72,6 +74,7 @@ export class AnthropicProvider implements AiProvider {
         if (block.type === 'text') {
           return {
             text: block.text,
+            citations: block.citations?.map((citation) => citation.cited_text),
             usage: response.usage,
           };
         }

@@ -33,9 +33,13 @@ export const INTENTION_PROMPT_SYSTEM_V1 =
     .join(', ') +
   '. You should just return one of the enumerated intentions names';
 
-export const INTENTIONS_SCHEMA = z.enum(Object.values(ArchitectIntent));
+export const INTENTIONS_SCHEMA = z.object({
+  intent: z.enum(Object.values(ArchitectIntent)),
+});
 
-const IntentionClassification: Prompt = {
+export type Intention = z.infer<typeof INTENTIONS_SCHEMA>;
+
+export const intentionClassificationPrompt: Prompt = {
   version: INTENTION_PROMPT_VERSION_V1,
   prompt: INTENTION_PROMPT_SYSTEM_V1,
   outputFormat: INTENTIONS_SCHEMA,

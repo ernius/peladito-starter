@@ -6,7 +6,6 @@
 
 ## Hipótesis
 
-
 ## Cambios
 
 ## Decisiones

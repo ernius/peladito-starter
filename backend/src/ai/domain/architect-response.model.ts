@@ -33,6 +33,7 @@ export const RetrivalStrategy = {
   MANAGED_FILE_SEARCH: 'MANAGED_FILE_SEARCH',
   CUSTOM_RAG: 'CUSTOM_RAG',
   HYBRID: 'HYBRID',
+  INTENT_CLASSIFICATION: 'SENTIMENT_CLASSIFICATION',
 } as const;
 
 export type RetrivalStrategy =

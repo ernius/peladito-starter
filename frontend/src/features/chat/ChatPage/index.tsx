@@ -1,15 +1,16 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { cn } from '@/lib/utils';
-import { logout, useCurrentUser } from '../../auth/useAuth';
-import { useChat } from '../useChat';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import { logout, useCurrentUser } from "../../auth/useAuth";
+import { useChat } from "../useChat";
+import Markdown from "react-markdown";
 
 export const ChatPage = () => {
   const { data: user } = useCurrentUser();
   const { messages, sendMessage, error } = useChat();
-  const [draft, setDraft] = useState('');
+  const [draft, setDraft] = useState("");
 
   const onSubmit = (event: React.FormEvent): void => {
     event.preventDefault();
@@ -18,7 +19,7 @@ export const ChatPage = () => {
     if (!content) return;
 
     sendMessage(content);
-    setDraft('');
+    setDraft("");
   };
 
   return (
@@ -46,13 +47,13 @@ export const ChatPage = () => {
               <div
                 key={message.id}
                 className={cn(
-                  'max-w-[80%] rounded-lg px-3 py-2 text-sm',
-                  message.role === 'user'
-                    ? 'self-end bg-primary text-primary-foreground'
-                    : 'self-start bg-muted',
+                  "max-w-[80%] rounded-lg px-3 py-2 text-sm",
+                  message.role === "user"
+                    ? "self-end bg-primary text-primary-foreground"
+                    : "self-start bg-muted",
                 )}
               >
-                {message.content}
+                <Markdown>{message.content}</Markdown>
               </div>
             ))}
           </div>
