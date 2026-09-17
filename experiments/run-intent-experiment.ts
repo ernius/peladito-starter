@@ -16,6 +16,7 @@ import type { AIUsageLog } from "../backend/src/ai/domain/log.model";
 import { AnthropicProvider } from "../backend/src/ai/infrastructure/anthropic.provider";
 import { OpenAiProvider } from "../backend/src/ai/infrastructure/openai.provider";
 import { ArchitectIntent } from "../backend/src/ai/domain/evaluation-case.model";
+import type { DocumentRepository } from "../backend/src/document/domain/document-repository.port";
 
 interface EvaluationCase {
   id: number;
@@ -38,6 +39,22 @@ const inMemoryUsageLogRepository: AiUsageLogRepository = {
   },
 };
 
+// Intent classification never triggers FULL_CONTEXT document retrieval, so a
+// no-op stub is enough here and keeps this script free of a Postgres dependency.
+const noopDocumentRepository: DocumentRepository = {
+  findAll: async () => [],
+  findById: async () => null,
+  findByProjectId: async () => [],
+  findByStatus: async () => [],
+  create: async (data) => ({
+    ...data,
+    id: "noop",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }),
+  update: async () => null,
+};
+
 async function main(): Promise<void> {
   const cases: EvaluationCase[] = JSON.parse(
     readFileSync(DATASET_PATH, "utf-8"),
@@ -51,8 +68,8 @@ async function main(): Promise<void> {
     console.log(`Running case #${experiment.id}: "${experiment.question}"`);
 
     const providerRegistry = new AiProviderRegistry(
-      new OpenAiProvider(),
-      new AnthropicProvider(),
+      new OpenAiProvider(noopDocumentRepository),
+      new AnthropicProvider(noopDocumentRepository),
     );
     const usageLogService = new AiUsageLogService(inMemoryUsageLogRepository);
     const aiCompletionService = new AiCompletionService(

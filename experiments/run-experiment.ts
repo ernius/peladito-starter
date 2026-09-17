@@ -64,7 +64,7 @@ async function main(): Promise<void> {
     console.log(`Running case #${experiment.id}: "${experiment.question}"`);
 
     const providerRegistry = new AiProviderRegistry(
-      new OpenAiProvider(),
+      new OpenAiProvider(documentRepository),
       new AnthropicProvider(documentRepository),
     );
     const usageLogService = new AiUsageLogService(inMemoryUsageLogRepository);

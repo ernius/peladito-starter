@@ -1,25 +1,64 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import {
   AiProviderName,
   type AiCompletionRequest,
   type AiCompletionResult,
   type AiProvider,
 } from '../domain/ai-provider.port';
-import OpenAI from 'openai';
+import OpenAI, { toFile } from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod';
-import fs from 'fs';
+import { DOCUMENT_REPOSITORY } from '../../document/domain/document-repository.port';
+import type { DocumentRepository } from '../../document/domain/document-repository.port';
+import { RetrivalStrategy } from '../domain/architect-response.model';
 
 @Injectable()
 export class OpenAiProvider implements AiProvider {
   readonly name = AiProviderName.OPENAI;
   private clientOpenAI = new OpenAI();
 
-  complete(request: AiCompletionRequest): Promise<AiCompletionResult> {
+  constructor(
+    @Inject(DOCUMENT_REPOSITORY)
+    private readonly documentRepository: DocumentRepository,
+  ) {}
+
+  private async uploadDocuments(): Promise<
+    OpenAI.Responses.ResponseInputFile[]
+  > {
+    const documents = await this.documentRepository.findAll();
+    const fileBlocks: OpenAI.Responses.ResponseInputFile[] = [];
+    for (const document of documents) {
+      console.log(`uploading: ` + document.title);
+      const uploadedFile = await this.clientOpenAI.files.create({
+        file: await toFile(
+          Buffer.from(document.content, 'utf-8'),
+          `${document.title}.md`,
+          { type: 'text/markdown' },
+        ),
+        purpose: 'user_data',
+      });
+      fileBlocks.push({
+        type: 'input_file',
+        file_id: uploadedFile.id,
+      });
+    }
+    return fileBlocks;
+  }
+
+  async complete(request: AiCompletionRequest): Promise<AiCompletionResult> {
     // TODO: outputFormat only present in some models ?
+    const fileBlocks =
+      request.context && request.context === RetrivalStrategy.FULL_CONTEXT
+        ? await this.uploadDocuments()
+        : [];
+
     if (request.outputFormat) {
       return this.clientOpenAI.responses
         .parse({
-          model: request.model ?? 'gpt-5.6-luna',
+          model: request.model ?? 'gpt-4.1',
           ...(request.maxTokens && { max_output_tokens: request.maxTokens }),
           input: [
             ...(request.systemPrompt
@@ -32,12 +71,13 @@ export class OpenAiProvider implements AiProvider {
               : []),
             {
               role: 'user' as const,
-              content: request.prompt,
+              content: fileBlocks.length
+                ? [
+                    ...fileBlocks,
+                    { type: 'input_text' as const, text: request.prompt },
+                  ]
+                : request.prompt,
             },
-            // TODO(participante): documents are read but not yet attached
-            // to the request — input_file must be nested inside a message's
-            // content array, not spread at the top level. See file-search /
-            // upload TODO above.
           ],
           text: { format: zodTextFormat(request.outputFormat, 'output') },
         })
@@ -54,9 +94,10 @@ export class OpenAiProvider implements AiProvider {
           throw new InternalServerErrorException(`OpenAI error ${err}`);
         });
     }
+
     return this.clientOpenAI.responses
       .create({
-        model: request.model ?? 'gpt-5.6-luna',
+        model: request.model ?? 'gpt-4.1',
         ...(request.maxTokens && { masx_output_tokens: request.maxTokens }),
         input: [
           ...(request.systemPrompt
@@ -69,7 +110,12 @@ export class OpenAiProvider implements AiProvider {
             : []),
           {
             role: 'user' as const,
-            content: request.prompt,
+            content: fileBlocks.length
+              ? [
+                  ...fileBlocks,
+                  { type: 'input_text' as const, text: request.prompt },
+                ]
+              : request.prompt,
           },
         ],
       })

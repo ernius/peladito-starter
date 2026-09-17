@@ -44,7 +44,6 @@ export class AnthropicProvider implements AiProvider {
         source: { type: 'file', file_id: uploadedFile.id },
         title: document.title,
         context: `This is a${document.type} type document.`,
-        citations: { enabled: true },
       });
     }
     return documentBlocks;

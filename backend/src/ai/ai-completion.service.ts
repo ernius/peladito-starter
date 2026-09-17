@@ -1,4 +1,3 @@
-import { join } from 'path';
 import {
   BadGatewayException,
   BadRequestException,
@@ -199,16 +198,32 @@ export class AiCompletionService {
             tokenUsage.output_tokens ??
             0 + (aiComplete.usage?.output_tokens ?? 0),
         };
+        const parsedOutput = aiComplete.parsedOutput;
+        const sources =
+          parsedOutput &&
+          'sources' in parsedOutput &&
+          Array.isArray(parsedOutput.sources)
+            ? parsedOutput.sources.map((s: unknown) => ({
+                documentId:
+                  typeof s === 'object' && s !== null && 'document_name' in s
+                    ? String(s.document_name)
+                    : '',
+                documentVersion: '1.0',
+                section:
+                  typeof s === 'object' && s !== null && 'section' in s
+                    ? String(s.section)
+                    : '',
+              }))
+            : [];
+
         resp = {
           ...resp,
-          sources: aiComplete.citations
-            ? aiComplete.citations.map((c: string) => ({
-                documentId: c,
-                documentVersion: '1.0',
-                section: 'todo',
-              }))
-            : [],
-          plainLanguageAnswer: aiComplete.text,
+          sources,
+          plainLanguageAnswer:
+            aiComplete.text ??
+            (parsedOutput && 'text' in parsedOutput
+              ? String(parsedOutput.text)
+              : undefined),
         };
       }
 
