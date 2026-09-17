@@ -15,21 +15,6 @@ export class OpenAiProvider implements AiProvider {
   private clientOpenAI = new OpenAI();
 
   complete(request: AiCompletionRequest): Promise<AiCompletionResult> {
-    // TODO: use File Search, upload files
-    const documents: {
-      type: 'input_file';
-      filename: string;
-      file_data: string;
-    }[] = [];
-    for (const document of request.documents ?? []) {
-      const data = fs.readFileSync(document);
-      const base64String = data.toString('base64');
-      documents.push({
-        type: 'input_file',
-        filename: document,
-        file_data: `data:text/markdown;base64,${base64String}`,
-      });
-    }
     // TODO: outputFormat only present in some models ?
     if (request.outputFormat) {
       return this.clientOpenAI.responses

@@ -3,11 +3,14 @@
 // (backend's tsconfig uses "nodenext", which ts-node can't apply to a .cts file living outside the backend project; the overrides sidestep that.)
 //
 // Wires AiCompletionService by hand instead of via Nest's DI container so this stays a
-// standalone script with no Postgres dependency: usage logging (the only DB-backed
-// collaborator) is swapped for an in-memory stub, everything else is the real service.
+// standalone script: usage logging is swapped for an in-memory stub, everything else is
+// the real service. Document retrieval (FULL_CONTEXT citations) needs the real corpus, so
+// it connects directly to Postgres via a DataSource scoped to DocumentEntity only
+// (requires `pnpm db:up` and the corpus loaded via `pnpm seed:documents`).
 import "dotenv/config";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { createDocumentDataSource } from "../backend/src/document/infrastructure/document-data-source";
 import { AiCompletionService } from "../backend/src/ai/ai-completion.service";
 import { AiProviderRegistry } from "../backend/src/ai/ai-provider.registry";
 import { AiUsageLogService } from "../backend/src/ai/ai-usage-log.service";
@@ -17,6 +20,8 @@ import { AnthropicProvider } from "../backend/src/ai/infrastructure/anthropic.pr
 import { OpenAiProvider } from "../backend/src/ai/infrastructure/openai.provider";
 import { ArchitectIntent } from "../backend/src/ai/domain/evaluation-case.model";
 import { ArchitectResponse } from "../backend/src/ai/domain/architect-response.model";
+import { DocumentEntity } from "../backend/src/document/infrastructure/document.entity";
+import { DocumentTypeormRepository } from "../backend/src/document/infrastructure/document-typeorm.repository";
 
 interface EvaluationCase {
   id: number;
@@ -39,9 +44,16 @@ const inMemoryUsageLogRepository: AiUsageLogRepository = {
   },
 };
 
+const documentDataSource = createDocumentDataSource();
+
 async function main(): Promise<void> {
   const cases: EvaluationCase[] = JSON.parse(
     readFileSync(DATASET_PATH, "utf-8"),
+  );
+
+  await documentDataSource.initialize();
+  const documentRepository = new DocumentTypeormRepository(
+    documentDataSource.getRepository(DocumentEntity),
   );
 
   let ok = 0;
@@ -53,7 +65,7 @@ async function main(): Promise<void> {
 
     const providerRegistry = new AiProviderRegistry(
       new OpenAiProvider(),
-      new AnthropicProvider(),
+      new AnthropicProvider(documentRepository),
     );
     const usageLogService = new AiUsageLogService(inMemoryUsageLogRepository);
     const aiCompletionService = new AiCompletionService(
@@ -80,7 +92,9 @@ async function main(): Promise<void> {
   console.log(`Ok:${ok} Error:${error} from ${ok + error} tests`);
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+main()
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  })
+  .finally(() => documentDataSource.destroy());

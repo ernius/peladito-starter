@@ -53,9 +53,6 @@ export interface AiIntentResult {
   usage: TokensUsage;
 }
 
-// __dirname is backend/src/ai (or backend/dist/ai when built); repo root is 3 levels up.
-const REPO_ROOT = join(__dirname, '..', '..', '..');
-
 @Injectable()
 export class AiCompletionService {
   private readonly logger = new Logger(AiCompletionService.name);
@@ -187,9 +184,7 @@ export class AiCompletionService {
           systemPrompt: prompt.prompt,
           systemPromptVersion: prompt.version,
           temperature: prompt.temperature,
-          documents: [
-            join(REPO_ROOT, 'deliverable-documents/week1/corpus/v0/product.md'),
-          ],
+          context: RetrivalStrategy.FULL_CONTEXT,
         };
 
         const aiComplete: AiCompletionResult = await completeWithRetry(

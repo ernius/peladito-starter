@@ -8,11 +8,12 @@ import { AiUsageLogEntity } from './infrastructure/ai-usage-log.entity';
 import { AiUsageLogTypeormRepository } from './infrastructure/ai-usage-log-typeorm.repository';
 import { AnthropicProvider } from './infrastructure/anthropic.provider';
 import { OpenAiProvider } from './infrastructure/openai.provider';
+import { DocumentModule } from '../document/document.module';
 
 // Arquitectura de providers: los servicios de dominio dependen del puerto
 // AiProvider (via AiProviderRegistry), nunca de un SDK concreto.
 @Module({
-  imports: [TypeOrmModule.forFeature([AiUsageLogEntity])],
+  imports: [TypeOrmModule.forFeature([AiUsageLogEntity]), DocumentModule],
   providers: [
     OpenAiProvider,
     AnthropicProvider,

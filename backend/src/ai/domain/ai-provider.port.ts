@@ -1,6 +1,7 @@
 import retry from 'async-retry';
 import { ZodType } from 'zod/v4';
 import { ArchitectIntent } from './evaluation-case.model';
+import { RetrivalStrategy } from './architect-response.model';
 
 export const AiProviderName = {
   OPENAI: 'OPENAI',
@@ -23,8 +24,8 @@ export interface AiCompletionRequest {
   // prompt
   systemPrompt?: string;
   systemPromptVersion?: string;
-  // files paths
-  documents?: string[];
+  // context
+  context?: RetrivalStrategy;
 }
 
 export interface TokensUsage {

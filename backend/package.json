@@ -30,7 +30,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "intent-experiment": "npx ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' ../experiments/run-intent-experiment.ts",
-    "experiment": "npx ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\",\"moduleResolution\":\"node\"}' ../experiments/run-experiment.ts"
+    "experiment": "npx ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\",\"moduleResolution\":\"node\",\"target\":\"ES2023\",\"experimentalDecorators\":true,\"emitDecoratorMetadata\":true}' ../experiments/run-experiment.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.124.0",

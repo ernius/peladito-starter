@@ -1,4 +1,4 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { Inject, Injectable, NotImplementedException } from '@nestjs/common';
 import {
   AiProviderName,
   type AiCompletionRequest,
@@ -6,35 +6,43 @@ import {
   type AiProvider,
   AiAPIError,
 } from '../domain/ai-provider.port';
-import path from 'node:path';
-import { Anthropic } from '@anthropic-ai/sdk';
+import { Anthropic, toFile } from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
-import fs from 'fs';
+import { DOCUMENT_REPOSITORY } from '../../document/domain/document-repository.port';
+import type { DocumentRepository } from '../../document/domain/document-repository.port';
+import { RetrivalStrategy } from '../domain/architect-response.model';
+import { DocumentBlockParam } from '@anthropic-ai/sdk/resources';
 
 @Injectable()
 export class AnthropicProvider implements AiProvider {
   readonly name = AiProviderName.ANTHROPIC;
   private anthropicClient: Anthropic;
 
-  constructor() {
+  constructor(
+    @Inject(DOCUMENT_REPOSITORY)
+    private readonly documentRepository: DocumentRepository,
+  ) {
     this.anthropicClient = new Anthropic({
       apiKey: process.env['ANTHROPIC_API_KEY'],
     });
   }
 
-  private async uploadDocuments(
-    documents: AiCompletionRequest['documents'],
-  ): Promise<Anthropic.DocumentBlockParam[]> {
+  private async uploadDocuments(): Promise<Anthropic.DocumentBlockParam[]> {
+    const documents = await this.documentRepository.findAll();
     const documentBlocks: Anthropic.DocumentBlockParam[] = [];
-    for (const documentPath of documents ?? []) {
-      console.log(`uploading: ` + documentPath);
+    for (const document of documents) {
+      console.log(`uploading: ` + document.title);
       const uploadedFile = await this.anthropicClient.files.upload({
-        file: fs.createReadStream(documentPath),
+        file: await toFile(
+          Buffer.from(document.content, 'utf-8'),
+          `${document.title}.md`,
+          { type: 'text/plain' },
+        ),
       });
       documentBlocks.push({
         type: 'document',
         source: { type: 'file', file_id: uploadedFile.id },
-        title: path.basename(documentPath),
+        title: document.title,
         citations: { enabled: true },
       });
     }
@@ -43,7 +51,14 @@ export class AnthropicProvider implements AiProvider {
 
   async complete(request: AiCompletionRequest): Promise<AiCompletionResult> {
     try {
-      const documentBlocks = await this.uploadDocuments(request.documents);
+      let documentBlocks: DocumentBlockParam[] = [];
+      if (
+        request.context &&
+        request.context === RetrivalStrategy.FULL_CONTEXT
+      ) {
+        documentBlocks = await this.uploadDocuments();
+      }
+
       const content: Anthropic.MessageParam['content'] = documentBlocks.length
         ? [...documentBlocks, { type: 'text', text: request.prompt }]
         : request.prompt;

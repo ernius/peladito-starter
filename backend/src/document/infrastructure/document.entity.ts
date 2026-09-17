@@ -21,13 +21,13 @@ export class DocumentEntity {
   @Column({ name: 'title', length: 255 })
   title!: string;
 
-  @Column({ name: 'type', length: 20 })
+  @Column({ name: 'type', type: 'varchar', length: 20 })
   type!: DocumentType;
 
   @Column({ name: 'version', length: 40 })
   version!: string;
 
-  @Column({ name: 'status', length: 20 })
+  @Column({ name: 'status', type: 'varchar', length: 20 })
   status!: DocumentStatus;
 
   @Column({ name: 'effective_date', type: 'timestamptz', nullable: true })

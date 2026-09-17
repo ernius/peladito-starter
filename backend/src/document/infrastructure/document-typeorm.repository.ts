@@ -15,6 +15,11 @@ export class DocumentTypeormRepository implements DocumentRepository {
     private readonly repository: Repository<DocumentEntity>,
   ) {}
 
+  async findAll(): Promise<ArchitectureDocument[]> {
+    const entities = await this.repository.find();
+    return entities.map((entity) => this.toDomain(entity));
+  }
+
   async findById(id: string): Promise<ArchitectureDocument | null> {
     const entity = await this.repository.findOne({ where: { id } });
     return entity ? this.toDomain(entity) : null;

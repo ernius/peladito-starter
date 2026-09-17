@@ -3,6 +3,7 @@ import type { ArchitectureDocument, DocumentStatus } from './document.model';
 export const DOCUMENT_REPOSITORY = Symbol('DOCUMENT_REPOSITORY');
 
 export interface DocumentRepository {
+  findAll(): Promise<ArchitectureDocument[]>;
   findById(id: string): Promise<ArchitectureDocument | null>;
   findByProjectId(projectId: string): Promise<ArchitectureDocument[]>;
   findByStatus(status: DocumentStatus): Promise<ArchitectureDocument[]>;
