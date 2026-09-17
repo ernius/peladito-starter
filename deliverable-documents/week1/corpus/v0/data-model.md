@@ -1,5 +1,8 @@
-# Version: 1.0
-# Date: 03/09/2026
+# Title: Data model
+# type: ARCHITECTURE
+# version: 1.0
+# status: ACTIVE
+# effectivedate: 03/09/2026
 
 # Data Model
 

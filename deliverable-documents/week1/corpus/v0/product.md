@@ -1,7 +1,10 @@
-# Version: 1.0
-# Date: 2026-02-10
+# Title: Sales and stock System 
+# type: PRODUCT
+# version: 1.0
+# status: ACTIVE
+# effectivedate: 03/09/2026
 
-# Simple Sales & Stock System 
+# Sales and stock System 
 
 ## 1. Summary
 

@@ -23,6 +23,7 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "print:intention-prompt": "ts-node -r tsconfig-paths/register scripts/print-intention-prompt.ts",
+    "seed:documents": "ts-node -r tsconfig-paths/register scripts/load-documents.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

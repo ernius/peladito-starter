@@ -1,5 +1,9 @@
-# Version: 1.0
-# Date: 03/09/2026
+# Title: Glossary
+# type: GLOSSARY
+# version: 1.0
+# status: ACTIVE
+# effectivedate: 03/09/2026
+
 
 - Ghost stock: show stock as available when it is actually missing, lost, or stuck in transit.
 
